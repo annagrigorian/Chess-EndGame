@@ -140,7 +140,6 @@ namespace Chess
             vectortop = (int)e.GetPosition(this).Y - figuretomove.Margin.Top;
             startpos = figuretomove.Margin;
 
-
             whitekingfields = GetKingFields(whiteking, whiteking.Margin);
         }
 
