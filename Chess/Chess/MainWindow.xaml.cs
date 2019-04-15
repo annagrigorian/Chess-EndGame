@@ -121,10 +121,8 @@ namespace Chess
                     whiteking.Margin = startpos;
 
                 if (!isWhiteTurn)
-                {
-                    List<Thickness> rand = GetRookFields(blackrook.Margin);
-
-                    blackrook.Margin = rand[rd.Next(0, rand.Count)];
+                {                  
+                    RookMove();
 
                     isWhiteTurn = true;
                 }
@@ -133,7 +131,6 @@ namespace Chess
 
         private void Whiteking_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
             isMoving = true;
             figuretomove = whiteking;
             vectorleft = (int)e.GetPosition(this).X - figuretomove.Margin.Left;
@@ -177,13 +174,13 @@ namespace Chess
             return (cx >= 0 && cx < 8 && cy < 8 && cy >= 0);
         }
 
-        public void BlacksTurn()
+        public void RookMove()
         {
             int WhiteKingX = (int)(whiteking.Margin.Left * 50) / 50;
             int WhiteKingY = (int)(whiteking.Margin.Top * 50) / 50;
 
-            List<Thickness> thicks = GetRookFields(blackrook.Margin);
-            List<Thickness> possibleThicks = new List<Thickness>();
+            List<Thickness> rookfields = GetRookFields(blackrook.Margin);
+            List<Thickness> possiblefields = new List<Thickness>();
 
             List<int> areas = new List<int>();
             areas.Add(WhiteKingX / 50);////left-0
@@ -193,6 +190,7 @@ namespace Chess
 
             int minArea = areas[0];
             int minInd = 0;
+
             foreach (var item in areas)
             {
                 if (item < minArea)
@@ -201,62 +199,65 @@ namespace Chess
                     minInd = areas.IndexOf(item);
                 }
             }
+
             switch (minInd)
             {
                 case 0:
                     left = WhiteKingX + 50;
                     top = WhiteKingY;
-                    foreach (var item in thicks)
+                    foreach (var item in rookfields)
                     {
                         if (item.Left == left && item.Top != top && item.Top != top - 50 && item.Top != top + 50)
                         {
-                            possibleThicks.Add(item);
+                            possiblefields.Add(item);
                         }
                     }
                     break;
                 case 1:
                     top = WhiteKingY + 50;
                     left = WhiteKingX;
-                    foreach (var item in thicks)
+                    foreach (var item in rookfields)
                     {
                         if (item.Top == top && item.Left != left && item.Left != left - 50 && item.Left != left + 50)
                         {
-                            possibleThicks.Add(item);
+                            possiblefields.Add(item);
                         }
                     }
                     break;
                 case 2:
                     left = WhiteKingX - 50;
                     top = WhiteKingY;
-                    foreach (var item in thicks)
+                    foreach (var item in rookfields)
                     {
                         if (item.Left == left && item.Top != top && item.Top != top - 50 && item.Top != top + 50)
                         {
-                            possibleThicks.Add(item);
+                            possiblefields.Add(item);
                         }
                     }
                     break;
                 case 3:
                     top = WhiteKingY - 50;
                     left = WhiteKingX;
-                    foreach (var item in thicks)
+                    foreach (var item in rookfields)
                     {
                         if (item.Top == top && item.Left != left && item.Left != left - 50 && item.Left != left + 50)
                         {
-                            possibleThicks.Add(item);
+                            possiblefields.Add(item);
                         }
                     }
                     break;
             }
-            if (possibleThicks.Contains(blackking.Margin))
-                possibleThicks.Remove(blackking.Margin);
-            if (possibleThicks.Count == 0)
+
+            if (possiblefields.Contains(blackking.Margin))
+                possiblefields.Remove(blackking.Margin);
+
+            if (possiblefields.Count == 0)
             {
                 if (stepsCount == 1)
                 {
                     if (blackking.Margin.Left > blackrook.Margin.Left)
                     {
-                        foreach (var item in thicks)
+                        foreach (var item in rookfields)
                         {
                             if (item.Left == 0)
                             {
@@ -267,7 +268,7 @@ namespace Chess
                     }
                     else
                     {
-                        foreach (var item in thicks)
+                        foreach (var item in rookfields)
                         {
                             if (item.Left == 350)
                             {
@@ -282,35 +283,150 @@ namespace Chess
                     ///gnal harmar dirq
                 }
             }
-            if (possibleThicks.Count == 1)
+
+            if (possiblefields.Count == 1)
             {
-                blackrook.Margin = possibleThicks[0];
+                blackrook.Margin = possiblefields[0];
                 return;
             }
-            if (possibleThicks.Count > 1)
-            {
-                ///=> arqayov qayl
-                /// 
 
+            if (possiblefields.Count > 1)
+            {           
+                // Black king move
                 return;
             }
-            #region old
-            //int fromTop = (int)whiteking.Margin.Top / 50;
-            //int fromLeft = (int)whiteking.Margin.Left / 50;
-            //int fromButtom = 8 - fromTop;
-            //int fromRight = 8 - fromLeft;
+          
+        }
 
-            //int minDistanceHorizontal = Math.Min(fromLeft, fromRight);
-            //int minDistanceVertical = Math.Min(fromTop, fromButtom);
+        public void KingMove()
+        {
+            List<Thickness> whiteKingFields = GetKingFields(this.whiteking, this.whiteking.Margin);
+            List<Thickness> blackKingFields = GetKingFields(this.blackking, this.blackking.Margin);
 
-            //if (minDistanceHorizontal <= minDistanceVertical)
-            //{
-            //    if ()
-            //    {
+            foreach (var item in whiteKingFields)
+            {
+                if (blackKingFields.Contains(item))
+                {
+                    blackKingFields.Remove(item);
+                }
+            }
 
-            //    }
-            //}
-            #endregion
+            if (blackKingFields.Contains(this.blackrook.Margin))
+            {
+                blackKingFields.Remove(this.blackrook.Margin);
+            }
+
+            int horizontalDistance = Math.Abs((int)(this.blackrook.Margin.Left - this.blackking.Margin.Left));
+            int verticalDistance = Math.Abs((int)(this.blackrook.Margin.Top - this.blackking.Margin.Top)); ;           
+
+            if (horizontalDistance == 50 && verticalDistance == 50)
+            {
+                if (this.blackking.Margin.Top + 50 != this.blackrook.Margin.Top && this.blackking.Margin.Top + 50 != whiteking.Margin.Top)
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left, this.blackking.Margin.Top + 50, 0, 0);
+                    return;
+                }
+                if (this.blackking.Margin.Top - 50 != this.blackrook.Margin.Top && this.blackking.Margin.Top - 50 != whiteking.Margin.Top)
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left, this.blackking.Margin.Top - 50, 0, 0);
+                    return;
+                }
+                if (this.blackking.Margin.Left + 50 != this.blackrook.Margin.Left && this.blackking.Margin.Left + 50 != whiteking.Margin.Left)
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left + 50, this.blackking.Margin.Top, 0, 0);
+                    return;
+                }
+                if (this.blackking.Margin.Left - 50 != this.blackrook.Margin.Left && this.blackking.Margin.Left - 50 != whiteking.Margin.Left)
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left - 50, this.blackking.Margin.Top, 0, 0);
+                    return;
+                }
+            }
+
+            if (horizontalDistance == 0)
+            {
+                if (this.blackking.Margin.Left > whiteking.Margin.Left)
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left - 50, this.blackking.Margin.Top, 0, 0);
+                    return;
+                }
+                else
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left + 50, this.blackking.Margin.Top, 0, 0);
+                    return;
+                }
+            }
+
+            if (verticalDistance == 0)
+            {
+                if (this.blackking.Margin.Top > whiteking.Margin.Top)
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left, this.blackking.Margin.Top - 50, 0, 0);
+                    return;
+                }
+                else
+                {
+                    this.blackking.Margin = new Thickness(this.blackking.Margin.Left, this.blackking.Margin.Top + 50, 0, 0);
+                    return;
+                }
+            }
+
+            if (horizontalDistance >= 100 && verticalDistance >= 100)
+            {
+                if (this.blackking.Margin.Left > whiteking.Margin.Left)
+                {
+                    foreach (var item in blackKingFields)
+                    {
+                        if (item.Left < this.blackking.Margin.Left && item.Top < this.blackking.Margin.Top)
+                        {
+                            this.blackking.Margin = item;
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var item in blackKingFields)
+                    {
+                        if (item.Left > this.blackking.Margin.Left && item.Top < this.blackking.Margin.Top)
+                        {
+                            this.blackking.Margin = item;
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (horizontalDistance == 50 && verticalDistance > 50)
+            {
+                if (blackrook.Margin.Top > blackking.Margin.Top)
+                {
+                    blackking.Margin = new Thickness(blackking.Margin.Left, blackking.Margin.Top + 50, 0, 0);
+                    return;
+                }
+                else
+                {
+                    blackking.Margin = new Thickness(blackking.Margin.Left, blackking.Margin.Top - 50, 0, 0);
+                    return;
+                }
+            }
+
+            if (horizontalDistance > 50 && verticalDistance == 50)
+            {
+                if (blackrook.Margin.Left > blackking.Margin.Left)
+                {
+                    blackking.Margin = new Thickness(blackking.Margin.Left + 50, blackking.Margin.Top, 0, 0);
+                    return;
+                }
+                else
+                {
+                    blackking.Margin = new Thickness(blackking.Margin.Left - 50, blackking.Margin.Top, 0, 0);
+                    return;
+                }
+            }
+
+
+
         }
 
         public static List<Thickness> GetKingFields(Image king, Thickness kingpos)
