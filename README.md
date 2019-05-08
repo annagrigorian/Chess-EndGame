@@ -1,2 +1,2 @@
-# Chess-EndGame
-Mate with King and Rook 
+# Chess EndGame
+Mate with King and Rook(implemented on WPF) 
